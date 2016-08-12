@@ -1,0 +1,24 @@
+version: '2'
+services:
+  crawler:
+    image: stackoverflow-crawler:latest
+    depends_on:
+      - redis
+    restart: always
+    command: scrapy runspider /code/stackoverflow_spider.py --loglevel "INFO"
+  redis:
+    image: redis:3.0
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+  consumer:
+    image: consumer:0.2
+    depends_on:
+      - redis
+      - mongo
+    environment:
+      - CRAWLER_NAME=stackoverflow
+      - DB_NAME=stackoverflow
+      - COLLECTION_NAME=questions
+    tty: true
